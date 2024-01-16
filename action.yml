@@ -36,6 +36,14 @@ inputs:
   custom-repo:
     description: 'name a custom repo to be prioritized above the default ones'
     required: false
+  custom-repo-sig:
+    description: 'name a sig level of your custom repo'
+    required: false
+    default: 'Optional TrustAll'
+  custom-repo-url:
+    description: 'name a server URL of your custom repo'
+    required: false
+    default: 'https\:\/\/raw\.githubusercontent\.com\/suitlinux\/\$repo\/stable\/\$arch\/'
   office-chooser:
     description: 'include calamares office installer module'
     required: false
@@ -212,6 +220,8 @@ runs:
       shell: bash
       env:
         CUSTOM_REPO: ${{ inputs.custom-repo }}
+        CUSTOM_REPO_SIG: ${{ inputs.custom-repo-sig }}
+        CUSTOM_REPO_URL: ${{ inputs.custom-repo-url }}
       run: |
         sudo git clone --depth 1 https://gitlab.manjaro.org/tools/development-tools/manjaro-tools.git
         cd manjaro-tools
@@ -221,7 +231,7 @@ runs:
         sudo make SYSCONFDIR=/etc PREFIX=/usr install_iso
         if [ ! -z ${CUSTOM_REPO} ]; then
           echo "## adding repo [${CUSTOM_REPO}]"
-          sudo sed -i -e "s/\[core\]/\[${CUSTOM_REPO}\]\nSigLevel = PackageRequired\nInclude = \/etc\/pacman\.d\/mirrorlist\n\n\[core\]/" /usr/share/manjaro-tools/pacman-multilib.conf
+          sudo sed -i -e "s/\[core\]/\[${CUSTOM_REPO}\]\nSigLevel = ${CUSTOM_REPO_SIG}\nServer = ${CUSTOM_REPO_URL}\n\n\[core\]/" /usr/share/manjaro-tools/pacman-multilib.conf
         fi
     - id: checkout-iso-profiles
       shell: bash
