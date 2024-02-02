@@ -33,6 +33,22 @@ inputs:
   release-tag:
     description: 'release tag to upload to (if set)'
     required: false
+  dist-name:
+    description: 'Distribution name'
+    required: false
+    default: 'Suit Linux' 
+  dist-release: 
+    description: 'Distribution release'
+    required: false
+    default: "24.1"
+  dist-codename: 
+    description: 'Distribution Codename'
+    required: false
+    default: 'Awesome'
+  iso-name:
+    description: 'Iso name'
+    required: false
+    default: 'suitlinux'
   custom-repo:
     description: 'name a custom repo to be prioritized above the default ones'
     required: false
@@ -258,6 +274,10 @@ runs:
         CODE_NAME: ${{ inputs.code-name }}
         OFFICE: ${{ inputs.office-chooser }}
         BUILD_MIRROR: ${{ inputs.build-mirror }}
+        DIST_NAME: ${{inputs.dist-name}}
+        DIST_RELEASE: ${{inputs.dist-release}}
+        DIST_CODENAME: ${{inputs.dist-codename}}
+        ISO_NAME: ${{inputs.iso-name}}
       run: |
         echo "## building iso"
         [ "$SCOPE" == "minimal" ] && unset SCOPE && unset OFFICE
@@ -266,10 +286,10 @@ runs:
         # source the version info from current release info
         source <(curl -s https://gitlab.manjaro.org/packages/core/manjaro-release/-/raw/master/lsb-release)
 
-        sudo sed -i -e "s|dist_name=\$(get_distname)|dist_name=${DISTRIB_ID%Linux}|g" /usr/lib/manjaro-tools/util.sh
-        sudo sed -i -e 's|iso_name=$(get_osid)|iso_name=manjaro|g' /usr/lib/manjaro-tools/util.sh
-        sudo sed -i -e "s|dist_release=\$(get_release)|dist_release=${VERSION:-$DISTRIB_RELEASE}|g" /usr/lib/manjaro-tools/util.sh
-        sudo sed -i -e "s|dist_codename=\$(get_codename)|dist_codename=\"${CODE_NAME:-$DISTRIB_CODENAME}\"|g" /usr/lib/manjaro-tools/util.sh
+        sudo sed -i -e "s|dist_name=\$(get_distname)|dist_name=${DIST_NAME%Linux}|g" /usr/lib/manjaro-tools/util.sh
+        sudo sed -i -e 's|iso_name=$(get_osid)|iso_name=${ISO_NAME}|g' /usr/lib/manjaro-tools/util.sh
+        sudo sed -i -e "s|dist_release=\$(get_release)|dist_release=${VERSION:-$DIST_RELEASE}|g" /usr/lib/manjaro-tools/util.sh
+        sudo sed -i -e "s|dist_codename=\$(get_codename)|dist_codename=\"${CODE_NAME:-$DIST_CODENAME}\"|g" /usr/lib/manjaro-tools/util.sh
         sudo sed -i -e "s|build_mirror='https://mirror.easyname.at/manjaro'|build_mirror=\'${BUILD_MIRROR}\'|g" /usr/lib/manjaro-tools/util.sh
         
         sudo buildiso ${SCOPE:+-f} -p $EDITION -b $BRANCH -k $KERNEL ${OFFICE:+-o}
