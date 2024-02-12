@@ -226,7 +226,7 @@ runs:
     - id: install-mkinitcpio
       shell: bash
       env:
-        VERSION: "32"
+        VERSION: "37.3"
       run: |
         sudo wget https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/archive/v${VERSION}/mkinitcpio-v${VERSION}.tar.gz
         sudo tar -xf mkinitcpio-v${VERSION}.tar.gz
